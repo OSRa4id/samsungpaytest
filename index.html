@@ -1,339 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Samsung Pay · Integration Test</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- ✅ CORRECT SDK per 3.3 Web Checkout SDK doc -->
   <script src="https://img.mpay.samsung.com/gsmpi/sdk/samsungpay_web_sdk.js"></script>
-
   <style>
     :root {
-      --bg:           #f0f0ed;
-      --surface:      #ffffff;
-      --border:       #e0dfd8;
-      --border-dark:  #c8c7bf;
-      --accent:       #1428a0;
-      --accent-hover: #0f1f82;
-      --text:         #1a1a18;
-      --muted:        #888880;
-      --faint:        #b8b8b0;
-      --success:      #1a7a4a;
-      --success-bg:   #edf7f1;
-      --error:        #c0392b;
-      --error-bg:     #fdf0ee;
-      --warn:         #a06010;
-      --warn-bg:      #fdf6ec;
-      --info-bg:      #eef2fc;
-      --info-text:    #1a3080;
-      --mono:         'DM Mono', monospace;
-      --sans:         'DM Sans', sans-serif;
-      --radius:       10px;
+      --bg:#f0f0ed; --surface:#fff; --border:#e0dfd8; --border-dk:#c8c7bf;
+      --accent:#1428a0; --text:#1a1a18; --muted:#888880; --faint:#b8b8b0;
+      --ok:#1a7a4a; --ok-bg:#edf7f1; --ok-border:#a8dfc0;
+      --err:#c0392b; --err-bg:#fdf0ee; --err-border:#f0b8b0;
+      --warn:#a06010; --warn-bg:#fdf6ec; --warn-border:#e8c070;
+      --info-bg:#eef2fc; --info-border:#c0cff8; --info-text:#1a3080;
+      --mono:'DM Mono',monospace; --sans:'DM Sans',sans-serif; --r:10px;
     }
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--sans);
-      font-size: 14px;
-      min-height: 100vh;
-      padding: 40px 20px 60px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;
+      min-height:100vh;padding:36px 20px 60px;display:flex;flex-direction:column;align-items:center;gap:18px}
 
     /* ── Header ── */
-    .header {
-      width: 100%;
-      max-width: 560px;
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      padding-bottom: 20px;
-      border-bottom: 1px solid var(--border-dark);
-    }
-    .header-title {
-      font-size: 20px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-    }
-    .header-title span { color: var(--accent); }
-    .header-sub {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 3px;
-      font-family: var(--mono);
-    }
-    .env-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--warn-bg);
-      border: 1px solid #e8c070;
-      color: var(--warn);
-      font-size: 11px;
-      font-family: var(--mono);
-      font-weight: 500;
-      padding: 5px 10px;
-      border-radius: 6px;
-      white-space: nowrap;
-    }
-    .env-badge::before {
-      content: '';
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--warn);
-    }
+    .hdr{width:100%;max-width:600px;display:flex;align-items:flex-start;justify-content:space-between;
+      padding-bottom:18px;border-bottom:1px solid var(--border-dk)}
+    .hdr-title{font-size:20px;font-weight:700;letter-spacing:-.02em}
+    .hdr-title span{color:var(--accent)}
+    .hdr-sub{font-size:12px;color:var(--muted);margin-top:3px;font-family:var(--mono)}
+    .badge{display:inline-flex;align-items:center;gap:6px;background:var(--warn-bg);
+      border:1px solid var(--warn-border);color:var(--warn);font-size:11px;font-family:var(--mono);
+      padding:5px 10px;border-radius:6px;white-space:nowrap}
+    .badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--warn)}
 
     /* ── Card ── */
-    .card {
-      width: 100%;
-      max-width: 560px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-    }
-    .card-header {
-      padding: 14px 20px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .card-label {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-    .card-body { padding: 20px; }
+    .card{width:100%;max-width:600px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+    .card-hdr{padding:13px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+    .card-lbl{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+    .card-body{padding:18px}
 
     /* ── Form ── */
-    .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
-    .field:last-child { margin-bottom: 0; }
-    .field label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.04em; }
-    .field input, .field select {
-      background: var(--bg);
-      border: 1px solid var(--border-dark);
-      color: var(--text);
-      font-family: var(--mono);
-      font-size: 13px;
-      padding: 9px 12px;
-      border-radius: 7px;
-      outline: none;
-      transition: border-color 0.15s, box-shadow 0.15s;
-      width: 100%;
-    }
-    .field input:focus, .field select:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(20,40,160,0.08);
-    }
-    .field input::placeholder { color: var(--faint); }
-    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field{display:flex;flex-direction:column;gap:5px;margin-bottom:13px}
+    .field:last-child{margin-bottom:0}
+    .field label{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.04em}
+    .field input,.field select{background:var(--bg);border:1px solid var(--border-dk);color:var(--text);
+      font-family:var(--mono);font-size:13px;padding:9px 12px;border-radius:7px;outline:none;
+      transition:border-color .15s,box-shadow .15s;width:100%}
+    .field input:focus,.field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(20,40,160,.08)}
+    .field input::placeholder{color:var(--faint)}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 
-    /* ── Samsung Pay section ── */
-    .spay-section {
-      padding: 24px 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-      border-top: 1px solid var(--border);
-      background: #fafaf8;
-    }
-    #samsungpay-container {
-      display: flex;
-      justify-content: center;
-      min-height: 48px;
-    }
-    #samsungpay-container button {
-      cursor: pointer;
-      border: none;
-      background: transparent;
-      padding: 0;
-      transition: transform 0.12s, filter 0.12s;
-    }
-    #samsungpay-container button:hover { transform: scale(1.02); }
-    #samsungpay-container button:active { transform: scale(0.98); }
-
-    /* Fallback button (when SDK createButton not available) */
-    #manual-spay-btn {
-      display: none;
-      align-items: center;
-      gap: 10px;
-      background: #1428a0;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 13px 28px;
-      font-family: var(--sans);
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.15s, transform 0.12s;
-    }
-    #manual-spay-btn:hover { background: var(--accent-hover); }
-    #manual-spay-btn:active { transform: scale(0.98); }
-    #manual-spay-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    #sdk-status-line {
-      font-size: 12px;
-      font-family: var(--mono);
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .dot {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--faint); flex-shrink: 0;
-    }
-    .dot.ok  { background: var(--success); }
-    .dot.err { background: var(--error); }
-    .dot.spin { background: var(--accent); animation: blink 1.2s infinite; }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+    /* ── Pay section ── */
+    .pay-sec{padding:22px 18px;display:flex;flex-direction:column;align-items:center;gap:13px;
+      border-top:1px solid var(--border);background:#fafaf8}
+    #spay-container{display:flex;justify-content:center;min-height:48px}
+    #spay-container button{cursor:pointer;border:none;background:transparent;padding:0;
+      transition:transform .12s}
+    #spay-container button:hover{transform:scale(1.02)}
+    #spay-container button:active{transform:scale(.98)}
+    #fallback-btn{display:none;align-items:center;gap:9px;background:#1428a0;color:#fff;
+      border:none;border-radius:8px;padding:12px 26px;font-family:var(--sans);font-size:15px;
+      font-weight:600;cursor:pointer;transition:background .15s}
+    #fallback-btn:hover{background:#0f1f82}
+    #fallback-btn:disabled{opacity:.4;cursor:not-allowed}
+    .sdk-line{font-size:12px;font-family:var(--mono);color:var(--muted);display:flex;align-items:center;gap:6px}
+    .dot{width:6px;height:6px;border-radius:50%;background:var(--faint);flex-shrink:0}
+    .dot.ok{background:var(--ok)}.dot.err{background:var(--err)}
+    .dot.spin{background:var(--accent);animation:blink 1.2s infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 
     /* ── Alert ── */
-    #alert-bar {
-      width: 100%; max-width: 560px;
-      display: none;
-      align-items: center;
-      gap: 10px;
-      padding: 11px 14px;
-      border-radius: 8px;
-      font-size: 13px;
-      border: 1px solid transparent;
-    }
-    #alert-bar.show   { display: flex; }
-    #alert-bar.info    { background: var(--info-bg);    border-color: #c0cff8; color: var(--info-text); }
-    #alert-bar.success { background: var(--success-bg); border-color: #a8dfc0; color: var(--success); }
-    #alert-bar.error   { background: var(--error-bg);   border-color: #f0b8b0; color: var(--error); }
-    #alert-bar.warn    { background: var(--warn-bg);    border-color: #e8c070; color: var(--warn); }
+    .alert{width:100%;max-width:600px;display:none;align-items:flex-start;gap:10px;
+      padding:12px 14px;border-radius:8px;font-size:13px;border:1px solid transparent;line-height:1.5}
+    .alert.show{display:flex}
+    .alert.info{background:var(--info-bg);border-color:var(--info-border);color:var(--info-text)}
+    .alert.ok  {background:var(--ok-bg);border-color:var(--ok-border);color:var(--ok)}
+    .alert.err {background:var(--err-bg);border-color:var(--err-border);color:var(--err)}
+    .alert.warn{background:var(--warn-bg);border-color:var(--warn-border);color:var(--warn)}
+
+    /* ── Diagnosis panel ── */
+    #diag-card{display:none}
+    #diag-card.show{display:block}
+    .diag-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+    .diag-item:last-child{border-bottom:none;padding-bottom:0}
+    .diag-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+    .diag-title{font-size:13px;font-weight:600;color:var(--text)}
+    .diag-desc{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5}
+    .diag-code{font-family:var(--mono);font-size:11px;background:var(--bg);padding:2px 6px;border-radius:4px;color:var(--err)}
 
     /* ── Credential ── */
-    #cred-card { display: none; }
-    #cred-card.show { display: block; }
-    .cred-row {
-      padding: 10px 0;
-      border-bottom: 1px solid var(--border);
-      display: flex; flex-direction: column; gap: 4px;
-    }
-    .cred-row:last-child { border-bottom: none; padding-bottom: 0; }
-    .cred-key { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
-    .cred-val {
-      font-family: var(--mono); font-size: 12px; color: var(--text);
-      background: var(--bg); padding: 6px 10px; border-radius: 5px; word-break: break-all;
-    }
-    .cred-val.highlight {
-      background: var(--success-bg); border: 1px solid #a8dfc0; color: var(--success);
-    }
+    #cred-card{display:none}
+    #cred-card.show{display:block}
+    .cred-row{padding:9px 0;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:4px}
+    .cred-row:last-child{border-bottom:none;padding-bottom:0}
+    .cred-key{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+    .cred-val{font-family:var(--mono);font-size:12px;color:var(--text);background:var(--bg);
+      padding:6px 10px;border-radius:5px;word-break:break-all}
+    .cred-val.hl{background:var(--ok-bg);border:1px solid var(--ok-border);color:var(--ok)}
 
     /* ── Log ── */
-    .log-header-row {
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .log-live-dot {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--success); animation: blink 2s infinite; margin-right: 6px;
-    }
-    .btn-clear {
-      font-size: 11px; font-family: var(--mono);
-      background: none; border: 1px solid var(--border-dark);
-      color: var(--muted); padding: 3px 10px; border-radius: 5px; cursor: pointer;
-      transition: color 0.15s, border-color 0.15s;
-    }
-    .btn-clear:hover { color: var(--text); border-color: var(--text); }
-    #log {
-      background: #fafaf8; border-top: 1px solid var(--border);
-      padding: 14px 16px; font-family: var(--mono); font-size: 12px;
-      line-height: 1.9; min-height: 160px; max-height: 380px;
-      overflow-y: auto; white-space: pre-wrap; word-break: break-all; color: var(--muted);
-    }
-    #log::-webkit-scrollbar { width: 4px; }
-    #log::-webkit-scrollbar-thumb { background: var(--border-dark); border-radius: 2px; }
-    .l-ts      { color: var(--faint); }
-    .l-ok      { color: var(--success); }
-    .l-err     { color: var(--error); }
-    .l-info    { color: var(--accent); }
-    .l-data    { color: #555; }
-    .l-warn    { color: var(--warn); }
-    .l-section { color: var(--text); font-weight: 500; }
+    .log-hdr{display:flex;align-items:center;justify-content:space-between}
+    .live-dot{width:6px;height:6px;border-radius:50%;background:var(--ok);animation:blink 2s infinite;margin-right:6px}
+    .btn-clear{font-size:11px;font-family:var(--mono);background:none;border:1px solid var(--border-dk);
+      color:var(--muted);padding:3px 9px;border-radius:5px;cursor:pointer;transition:color .15s,border-color .15s}
+    .btn-clear:hover{color:var(--text);border-color:var(--text)}
+    #log{background:#fafaf8;border-top:1px solid var(--border);padding:13px 16px;font-family:var(--mono);
+      font-size:12px;line-height:1.9;min-height:160px;max-height:460px;overflow-y:auto;
+      white-space:pre-wrap;word-break:break-all;color:var(--muted)}
+    #log::-webkit-scrollbar{width:4px}
+    #log::-webkit-scrollbar-thumb{background:var(--border-dk);border-radius:2px}
+    .l-ts{color:var(--faint)}.l-ok{color:var(--ok)}.l-err{color:var(--err)}
+    .l-info{color:var(--accent)}.l-data{color:#555}.l-warn{color:var(--warn)}
+    .l-sec{color:var(--text);font-weight:600}
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <div>
-      <div class="header-title">Samsung Pay <span>Test</span></div>
-      <div class="header-sub">Web Checkout SDK v3.3 · Noqodi / MPGS</div>
-    </div>
-    <span class="env-badge">STAGE_WITHOUT_APK</span>
+<div class="hdr">
+  <div>
+    <div class="hdr-title">Samsung Pay <span>Test</span></div>
+    <div class="hdr-sub">Web Checkout SDK v3.3 · Noqodi / MPGS</div>
   </div>
+  <span class="badge">STAGE_WITHOUT_APK</span>
+</div>
 
-  <!-- Config -->
-  <div class="card">
-    <div class="card-header">
-      <span class="card-label">Service Config</span>
+<!-- Config -->
+<div class="card">
+  <div class="card-hdr"><span class="card-lbl">Service Config</span></div>
+  <div class="card-body">
+    <div class="field">
+      <label>Service ID <span style="color:var(--err)">*</span></label>
+      <input id="sid" type="text" placeholder="From Samsung Pay Developer Portal" autocomplete="off"/>
     </div>
-    <div class="card-body">
+    <div class="field">
+      <label>Merchant Name</label>
+      <input id="mname" type="text" value="Noqodi Test Store"/>
+    </div>
+    <div class="field">
+      <label>Merchant ID <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+      <input id="mid" type="text" placeholder="e.g. noqodi_test"/>
+    </div>
+    <div class="row2">
       <div class="field">
-        <label>Service ID <span style="color:var(--error)">*</span></label>
-        <input id="cfg-service-id" type="text" placeholder="From Samsung Pay Developer Portal" autocomplete="off" />
-      </div>
-      <div class="field">
-        <label>Merchant Name</label>
-        <input id="cfg-merchant-name" type="text" value="Noqodi Test Store" />
-      </div>
-      <div class="field">
-        <label>Merchant ID (optional)</label>
-        <input id="cfg-merchant-id" type="text" placeholder="e.g. noqodi_test" />
-      </div>
-      <div class="row-2">
-        <div class="field">
-          <label>Amount</label>
-          <input id="cfg-amount" type="number" value="10.00" min="0.01" step="0.01" />
-        </div>
-        <div class="field">
-          <label>Currency</label>
-          <select id="cfg-currency">
-            <option value="AED" selected>AED</option>
-            <option value="SAR">SAR</option>
-            <option value="USD">USD</option>
-            <option value="EUR">EUR</option>
-            <option value="EGP">EGP</option>
-          </select>
-        </div>
-      </div>
-      <div class="row-2">
-        <div class="field">
-          <label>Country Code</label>
-          <select id="cfg-country">
-            <option value="AE" selected>AE — UAE</option>
-            <option value="SA">SA — Saudi Arabia</option>
-            <option value="US">US</option>
-            <option value="GB">GB</option>
-            <option value="EG">EG — Egypt</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Protocol</label>
-          <select id="cfg-protocol">
-            <option value="PROTOCOL_3DS" selected>PROTOCOL_3DS</option>
-          </select>
-        </div>
+        <label>Amount</label>
+        <input id="amount" type="number" value="10.00" min="0.01" step="0.01"/>
       </div>
       <div class="field">
-        <label>Allowed Brands (hold Ctrl/Cmd to multi-select)</label>
-        <select id="cfg-brands" multiple style="height:72px">
+        <label>Currency</label>
+        <select id="currency">
+          <option value="AED" selected>AED</option>
+          <option value="SAR">SAR</option>
+          <option value="USD">USD</option>
+          <option value="EUR">EUR</option>
+          <option value="EGP">EGP</option>
+        </select>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Country Code</label>
+        <select id="country">
+          <option value="AE" selected>AE — UAE</option>
+          <option value="SA">SA — Saudi Arabia</option>
+          <option value="US">US</option>
+          <option value="GB">GB</option>
+          <option value="EG">EG — Egypt</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Allowed Brands</label>
+        <select id="brands" multiple style="height:70px">
           <option value="visa" selected>Visa</option>
           <option value="mastercard" selected>Mastercard</option>
           <option value="amex">Amex</option>
@@ -341,294 +176,453 @@
         </select>
       </div>
     </div>
-
-    <!-- Button section -->
-    <div class="spay-section">
-      <div id="samsungpay-container"></div>
-      <button id="manual-spay-btn" disabled>
-        <svg width="20" height="14" viewBox="0 0 20 14" fill="none">
-          <path d="M3 7 Q6 1 10 7 Q13 13 17 7" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
-          <path d="M6 7 Q8 3 10 7 Q12 11 14 7" stroke="white" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.7"/>
-        </svg>
-        Samsung Pay
-      </button>
-      <div id="sdk-status-line">
-        <span class="dot spin" id="sdk-dot"></span>
-        <span id="sdk-status-text">Initializing SDK…</span>
-      </div>
-    </div>
   </div>
 
-  <!-- Alert -->
-  <div id="alert-bar"><span id="alert-msg"></span></div>
-
-  <!-- Credential display -->
-  <div class="card" id="cred-card">
-    <div class="card-header">
-      <span class="card-label" style="color:var(--success); display:flex; align-items:center; gap:6px">
-        <span class="dot ok"></span> Payment Credential Received
-      </span>
+  <div class="pay-sec">
+    <div id="spay-container"></div>
+    <button id="fallback-btn" disabled>
+      <svg width="20" height="14" viewBox="0 0 20 14" fill="none">
+        <path d="M3 7Q6 1 10 7Q13 13 17 7" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M6 7Q8 3 10 7Q12 11 14 7" stroke="white" stroke-width="1.4" stroke-linecap="round" fill="none" opacity=".7"/>
+      </svg>
+      Samsung Pay
+    </button>
+    <div class="sdk-line">
+      <span class="dot spin" id="sdk-dot"></span>
+      <span id="sdk-txt">Initializing SDK…</span>
     </div>
-    <div class="card-body" id="cred-body"></div>
   </div>
-
-  <!-- Log -->
-  <div class="card">
-    <div class="card-header log-header-row">
-      <span class="card-label" style="display:flex; align-items:center">
-        <span class="log-live-dot"></span> Live Log
-      </span>
-      <button class="btn-clear" onclick="clearLog()">clear</button>
-    </div>
-    <div id="log"><span class="l-ts">[init]</span> <span class="l-info">Page loaded. Waiting for SDK…</span>
 </div>
+
+<!-- Alert bar -->
+<div class="alert" id="alert"><span id="alert-msg"></span></div>
+
+<!-- Diagnosis panel (shown on error) -->
+<div class="card" id="diag-card">
+  <div class="card-hdr">
+    <span class="card-lbl" style="color:var(--err);display:flex;align-items:center;gap:6px">
+      <span class="dot err"></span> Error Diagnosis
+    </span>
   </div>
+  <div class="card-body" id="diag-body"></div>
+</div>
+
+<!-- Credential display (shown on success) -->
+<div class="card" id="cred-card">
+  <div class="card-hdr">
+    <span class="card-lbl" style="color:var(--ok);display:flex;align-items:center;gap:6px">
+      <span class="dot ok"></span> Payment Credential Received
+    </span>
+  </div>
+  <div class="card-body" id="cred-body"></div>
+</div>
+
+<!-- Log -->
+<div class="card">
+  <div class="card-hdr log-hdr">
+    <span class="card-lbl" style="display:flex;align-items:center">
+      <span class="live-dot"></span>Live Log
+    </span>
+    <button class="btn-clear" onclick="clearLog()">clear</button>
+  </div>
+  <div id="log"><span class="l-ts">[init]</span> <span class="l-info">Page loaded. Waiting for SDK…</span>
+</div>
+</div>
 
 <script>
-  // ─── Utils ───────────────────────────────────────────────────────────────────
-  const $ = id => document.getElementById(id);
+// ─── Utils ──────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const ts = () => new Date().toLocaleTimeString('en-GB',{hour12:false});
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
-  function ts() { return new Date().toLocaleTimeString('en-GB', { hour12: false }); }
+function log(msg, type='info') {
+  const c = {info:'l-info',ok:'l-ok',err:'l-err',data:'l-data',warn:'l-warn',sec:'l-sec'};
+  $('log').innerHTML += `<span class="l-ts">[${ts()}]</span> <span class="${c[type]||'l-info'}">${esc(msg)}</span>\n`;
+  $('log').scrollTop = $('log').scrollHeight;
+}
 
-  function esc(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
+function logJSON(label, obj, type='ok') {
+  log(label, type);
+  JSON.stringify(obj, null, 2).split('\n').forEach(l => {
+    $('log').innerHTML += `  <span class="l-data">${esc(l)}</span>\n`;
+  });
+  $('log').scrollTop = $('log').scrollHeight;
+}
 
-  function log(msg, type = 'info') {
-    const el = $('log');
-    const c = {info:'l-info',ok:'l-ok',err:'l-err',data:'l-data',warn:'l-warn',section:'l-section'};
-    el.innerHTML += `<span class="l-ts">[${ts()}]</span> <span class="${c[type]||'l-info'}">${esc(msg)}</span>\n`;
-    el.scrollTop = el.scrollHeight;
-  }
+function logSep(label) { log(`── ${label} ──`, 'sec'); }
 
-  function logJSON(label, obj, type='ok') {
-    log(label, type);
-    JSON.stringify(obj, null, 2).split('\n').forEach(l => {
-      $('log').innerHTML += `  <span class="l-data">${esc(l)}</span>\n`;
-    });
-    $('log').scrollTop = $('log').scrollHeight;
-  }
+function clearLog() {
+  $('log').innerHTML = `<span class="l-ts">[clear]</span> <span class="l-info">Log cleared.</span>\n`;
+}
 
-  function clearLog() {
-    $('log').innerHTML = `<span class="l-ts">[clear]</span> <span class="l-info">Log cleared.</span>\n`;
-  }
+function setAlert(msg, type='info') {
+  const a = $('alert'); a.className = 'alert show ' + type;
+  $('alert-msg').textContent = msg;
+}
 
-  function setAlert(msg, type='info') {
-    const b = $('alert-bar');
-    b.className = 'show ' + type;
-    $('alert-msg').textContent = msg;
-  }
+function setSdk(msg, state) {
+  $('sdk-dot').className = 'dot ' + (state==='ok'?'ok':state==='err'?'err':'spin');
+  $('sdk-txt').textContent = msg;
+}
 
-  function setSdkStatus(msg, state) {
-    $('sdk-dot').className = 'dot ' + (state==='ok'?'ok':state==='err'?'err':'spin');
-    $('sdk-status-text').textContent = msg;
-  }
+function brands() {
+  return Array.from($('brands').selectedOptions).map(o=>o.value);
+}
 
-  function getSelectedBrands() {
-    return Array.from($('cfg-brands').selectedOptions).map(o => o.value);
-  }
+function genRef() {
+  // Only [A-Z][a-z][0-9,-] allowed per API reference
+  return 'ORD-' + Date.now() + '-' + Math.random().toString(36).slice(2,5).toUpperCase();
+}
 
-  function genOrderRef() {
-    return 'ORD-' + Date.now() + '-' + Math.random().toString(36).slice(2,5).toUpperCase();
-  }
-
-  // ─── SDK Init ─────────────────────────────────────────────────────────────
-  let samsungPayClient = null;
-
-  window.addEventListener('load', () => {
-    if (typeof SamsungPay === 'undefined') {
-      setSdkStatus('SDK failed to load', 'err');
-      log('SamsungPay global not found. The SDK script may be blocked.', 'err');
-      setAlert('Samsung Pay SDK failed to load — check browser console.', 'error');
-      return;
+// ─── Error Diagnosis ────────────────────────────────────────────────────────
+// Maps known error conditions to human-readable causes and fixes
+const ERROR_MAP = {
+  'payment_error': [
+    {
+      icon: '🔑',
+      title: 'Missing or invalid CSR on portal',
+      desc: 'The most common cause. Your service on the Samsung Pay portal is missing a Certificate Signing Request (CSR). For MPGS network token mode, you must upload the CSR provided by MPGS into your service config.',
+      check: 'Portal → My Projects → Service Management → your service → check CSR is uploaded'
+    },
+    {
+      icon: '🌐',
+      title: 'Domain mismatch',
+      desc: 'The domain of this page does not match what is registered in your service on the portal.',
+      check: `This page is running on: "${window.location.hostname}" — verify this matches your service domain exactly (no https://, no path)`
+    },
+    {
+      icon: '📋',
+      title: 'Service not in Debugging state',
+      desc: 'Your service status on the portal may not be in "Debugging" state, or the debug expiration date has passed.',
+      check: 'Portal → Service Management → your service → check status is "Debugging" and debug date is not expired. Click "Generate New Date" if needed.'
+    },
+    {
+      icon: '👤',
+      title: 'Samsung account not on allowlist',
+      desc: 'In STAGE mode (not STAGE_WITHOUT_APK), your Samsung account must be added to the test accounts allowlist.',
+      check: 'Portal → Service Management → your service → Add Samsung Account → add the email you\'re testing with'
+    },
+    {
+      icon: '💳',
+      title: 'No supported card / PG configuration issue',
+      desc: 'The payment gateway (MPGS) may not be properly configured, or the card brand you\'re using is not supported by your service config.',
+      check: 'Verify allowedBrands in your paymentMethods matches what your PG supports. Verify MPGS is selected as PG in the portal.'
     }
+  ],
+  'service_not_found': [
+    {
+      icon: '🔍',
+      title: 'Service ID not found',
+      desc: 'The Service ID you entered does not exist or does not belong to your account.',
+      check: 'Double-check the Service ID copied from the portal. It is case-sensitive.'
+    }
+  ],
+  'invalid_parameter': [
+    {
+      icon: '📝',
+      title: 'Invalid parameter in request',
+      desc: 'One of the fields in paymentMethods or transactionDetail has an invalid value or type.',
+      check: 'Check the "Sent objects" in the log above for any null, empty, or wrongly-typed fields. amount.total must be a String per the API spec.'
+    }
+  ],
+  'user_cancel': [
+    {
+      icon: '↩️',
+      title: 'User cancelled',
+      desc: 'The user closed the Samsung Pay checkout sheet without completing payment. Not an integration error.',
+      check: 'No action needed — this is expected when the user presses Cancel or Back.'
+    }
+  ]
+};
 
-    log('SDK script loaded OK.', 'ok');
-    log('Creating PaymentClient({ environment: "STAGE_WITHOUT_APK" })…', 'info');
+function renderDiagnosis(rawError) {
+  const card = $('diag-card');
+  const body = $('diag-body');
+  body.innerHTML = '';
+  card.classList.add('show');
 
-    // ✅ Per 3.3 SDK doc
-    samsungPayClient = new SamsungPay.PaymentClient({ environment: 'STAGE_WITHOUT_APK' });
-    log('PaymentClient created.', 'ok');
+  // Determine error key
+  const errStr = typeof rawError === 'string'
+    ? rawError.toLowerCase()
+    : (rawError?.errorCode || rawError?.error || rawError?.message || JSON.stringify(rawError)).toLowerCase();
 
-    // Auto-check if serviceId is already filled
-    const sid = $('cfg-service-id').value.trim();
-    if (sid) {
-      callIsReadyToPay();
-    } else {
-      setSdkStatus('Waiting for Service ID…', 'spin');
-      setAlert('Enter your Samsung Pay Service ID to initialise the button.', 'warn');
-      log('Service ID empty — waiting for input.', 'warn');
+  let matched = null;
+  for (const [key, items] of Object.entries(ERROR_MAP)) {
+    if (errStr.includes(key)) { matched = items; break; }
+  }
 
-      function onServiceIdEntered() {
-        if ($('cfg-service-id').value.trim()) callIsReadyToPay();
+  if (!matched) {
+    // Generic fallback
+    matched = [{
+      icon: '❓',
+      title: 'Unknown error: ' + errStr,
+      desc: 'This error code is not in the local diagnosis map. Check the full error object in the log above.',
+      check: 'Submit a support ticket at developer.samsung.com/dashboard/support/wallet with the full error details from the log.'
+    }];
+  }
+
+  matched.forEach(item => {
+    const d = document.createElement('div');
+    d.className = 'diag-item';
+    d.innerHTML = `
+      <div class="diag-icon">${item.icon}</div>
+      <div>
+        <div class="diag-title">${esc(item.title)}</div>
+        <div class="diag-desc">${esc(item.desc)}</div>
+        <div class="diag-desc" style="margin-top:5px">
+          <strong style="color:var(--text)">→ Check:</strong> ${esc(item.check)}
+        </div>
+      </div>`;
+    body.appendChild(d);
+  });
+}
+
+// ─── Deep error logger ───────────────────────────────────────────────────────
+function logError(label, err) {
+  logSep(label);
+
+  // Raw value
+  log('Raw error value: ' + JSON.stringify(err), 'err');
+
+  // Type
+  log('typeof error: ' + typeof err, 'data');
+
+  // If it's an object, enumerate ALL keys
+  if (err && typeof err === 'object') {
+    log('All keys: ' + Object.keys(err).join(', '), 'data');
+
+    // Known meaningful fields
+    const fields = [
+      'errorCode','errorDescription','error','message','status',
+      'statusCode','code','type','reason','detail','data',
+      'resultCode','resultMessage','paymentError'
+    ];
+    fields.forEach(f => {
+      if (err[f] !== undefined) {
+        log(`  ${f}: ${JSON.stringify(err[f])}`, 'err');
       }
-      $('cfg-service-id').addEventListener('blur',   onServiceIdEntered, { once: true });
-      $('cfg-service-id').addEventListener('change', onServiceIdEntered, { once: true });
+    });
+
+    // Full JSON dump
+    logJSON('Full error object dump', err, 'err');
+  } else {
+    // It's a primitive string
+    log('Error string value: "' + String(err) + '"', 'err');
+  }
+
+  // Also try parsing if it's a JSON string
+  if (typeof err === 'string') {
+    try {
+      const parsed = JSON.parse(err);
+      logJSON('Parsed as JSON', parsed, 'err');
+    } catch(_) {
+      // not JSON, that's fine
     }
+  }
+}
+
+// ─── SDK Init ────────────────────────────────────────────────────────────────
+let client = null;
+
+window.addEventListener('load', () => {
+  // Intercept all console errors to capture SDK internal errors
+  const origError = console.error.bind(console);
+  console.error = (...args) => {
+    origError(...args);
+    log('[console.error intercepted] ' + args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '), 'warn');
+  };
+
+  if (typeof SamsungPay === 'undefined') {
+    setSdk('SDK script failed to load', 'err');
+    log('SamsungPay global not found — SDK script may be blocked or unavailable.', 'err');
+    setAlert('Samsung Pay SDK failed to load.', 'err');
+    return;
+  }
+
+  log('SDK script loaded OK.', 'ok');
+  log('Page origin: ' + window.location.origin, 'data');
+  log('Page hostname: ' + window.location.hostname, 'data');
+
+  // Build client
+  log('new SamsungPay.PaymentClient({ environment: "STAGE_WITHOUT_APK" })', 'info');
+  client = new SamsungPay.PaymentClient({ environment: 'STAGE_WITHOUT_APK' });
+  log('PaymentClient constructed.', 'ok');
+
+  const sid = $('sid').value.trim();
+  if (sid) {
+    doIsReadyToPay();
+  } else {
+    setSdk('Enter Service ID to continue', 'err');
+    setAlert('Enter your Samsung Pay Service ID to initialise the button.', 'warn');
+    log('Service ID empty — button will init after you enter it.', 'warn');
+
+    const tryInit = () => { if ($('sid').value.trim()) doIsReadyToPay(); };
+    $('sid').addEventListener('blur',   tryInit, {once:true});
+    $('sid').addEventListener('change', tryInit, {once:true});
+  }
+});
+
+// ─── isReadyToPay ────────────────────────────────────────────────────────────
+function paymentMethods() {
+  return {
+    version: '2',
+    serviceId: $('sid').value.trim(),
+    protocol: 'PROTOCOL_3DS',
+    allowedBrands: brands().length ? brands() : ['visa','mastercard']
+  };
+}
+
+function doIsReadyToPay() {
+  const pm = paymentMethods();
+  if (!pm.serviceId) { setSdk('Service ID required','err'); return; }
+
+  setSdk('Calling isReadyToPay()…','spin');
+  logSep('isReadyToPay()');
+  logJSON('paymentMethods', pm, 'info');
+
+  client.isReadyToPay(pm)
+    .then(res => {
+      logJSON('isReadyToPay() → response', res, 'ok');
+      if (res.result) {
+        log('result: true → injecting button via createButton()', 'ok');
+        setSdk('Ready', 'ok');
+        $('alert').className = 'alert';
+        injectButton();
+      } else {
+        log('result: false → Samsung Pay not available. Using fallback button.', 'warn');
+        setSdk('Not available in this browser','err');
+        setAlert('Samsung Pay not available here — fallback button shown.', 'warn');
+        showFallback();
+      }
+    })
+    .catch(err => {
+      logError('isReadyToPay() ERROR', err);
+      setSdk('isReadyToPay() failed','err');
+      setAlert('isReadyToPay() failed — see log for details.', 'err');
+      renderDiagnosis(err);
+      showFallback();
+    });
+}
+
+function injectButton() {
+  try {
+    const btn = client.createButton({
+      onClick:     onPay,
+      buttonStyle: 'black',
+      type:        'buy'
+    });
+    $('spay-container').innerHTML = '';
+    $('spay-container').appendChild(btn);
+    log('Official Samsung Pay button injected by SDK.', 'ok');
+  } catch(e) {
+    log('createButton() threw: ' + e.message + ' — using fallback.', 'warn');
+    showFallback();
+  }
+}
+
+function showFallback() {
+  const b = $('fallback-btn');
+  b.style.display = 'flex'; b.disabled = false;
+  b.addEventListener('click', onPay);
+  log('Fallback button active.', 'warn');
+}
+
+// ─── Payment Sheet ───────────────────────────────────────────────────────────
+function onPay() {
+  const sid = $('sid').value.trim();
+  if (!sid) { setAlert('Service ID is required.','err'); return; }
+
+  // ✅ amount.total must be a STRING per API reference spec
+  const amountRaw = parseFloat($('amount').value || '10.00');
+  const amountStr = amountRaw.toFixed(2); // "10.00" — String
+
+  const pm = paymentMethods();
+
+  const td = {
+    orderNumber: genRef(),
+    merchant: {
+      name:        $('mname').value.trim() || 'Noqodi',
+      url:         window.location.hostname,   // domain only, no protocol
+      id:          $('mid').value.trim() || 'noqodi_test',
+      countryCode: $('country').value
+    },
+    amount: {
+      option:   'FORMAT_TOTAL_ESTIMATED_AMOUNT',
+      currency: $('currency').value,
+      total:    amountStr   // ← String as required by API spec
+    }
+  };
+
+  // Hide previous results
+  $('diag-card').classList.remove('show');
+  $('cred-card').classList.remove('show');
+
+  logSep('loadPaymentSheet()');
+  logJSON('paymentMethods sent', pm, 'info');
+  logJSON('transactionDetail sent', td, 'info');
+  log('Note: amount.total sent as String "' + amountStr + '" per API spec', 'data');
+  log('Note: merchant.url sent as "' + window.location.hostname + '" (no protocol)', 'data');
+  setAlert('Opening Samsung Pay checkout…', 'info');
+
+  client.loadPaymentSheet(pm, td)
+    .then(cred => {
+      logSep('SUCCESS — paymentCredential received');
+      logJSON('paymentCredential (full)', cred, 'ok');
+      handleCred(cred);
+    })
+    .catch(err => {
+      logError('loadPaymentSheet() ERROR', err);
+      setAlert('Payment failed — see Error Diagnosis below.', 'err');
+      renderDiagnosis(err);
+    });
+}
+
+// ─── Credential handler ──────────────────────────────────────────────────────
+function handleCred(cred) {
+  setAlert('✓ Credential received — 3DS.data ready to forward to MPGS', 'ok');
+
+  const body = $('cred-body');
+  body.innerHTML = '';
+  $('cred-card').classList.add('show');
+  $('diag-card').classList.remove('show');
+
+  // Note: API spec uses card_last4digit (no 's') — handle both
+  const last4 = cred.card_last4digit || cred.card_last4digits || '—';
+
+  [
+    ['Method',        cred.method    || '—'],
+    ['Card Brand',    cred.card_brand || '—'],
+    ['Last 4 Digits', last4],
+    ['3DS Type',      cred['3DS']?.type    || '—'],
+    ['3DS Version',   cred['3DS']?.version || '—'],
+    ['Recurring',     String(cred.recurring_payment ?? false)],
+  ].forEach(([key, val]) => {
+    const d = document.createElement('div');
+    d.className = 'cred-row';
+    d.innerHTML = `<span class="cred-key">${esc(key)}</span><span class="cred-val">${esc(val)}</span>`;
+    body.appendChild(d);
   });
 
-  // ─── isReadyToPay ─────────────────────────────────────────────────────────
-  function buildPaymentMethods() {
-    return {
-      version:       '2',
-      serviceId:     $('cfg-service-id').value.trim(),
-      protocol:      $('cfg-protocol').value,
-      allowedBrands: getSelectedBrands().length ? getSelectedBrands() : ['visa','mastercard']
-    };
+  if (cred['3DS']?.data) {
+    const d = document.createElement('div');
+    d.className = 'cred-row';
+    d.innerHTML = `
+      <span class="cred-key">3DS.data — JWE token (forward this to MPGS Authorize API)</span>
+      <span class="cred-val hl">${esc(cred['3DS'].data)}</span>`;
+    body.appendChild(d);
   }
 
-  function callIsReadyToPay() {
-    const paymentMethods = buildPaymentMethods();
-    if (!paymentMethods.serviceId) {
-      setSdkStatus('Service ID required', 'err');
-      log('callIsReadyToPay() blocked — no serviceId.', 'warn');
-      return;
-    }
-
-    setSdkStatus('Calling isReadyToPay()…', 'spin');
-    logJSON('isReadyToPay() — paymentMethods', paymentMethods, 'info');
-
-    // ✅ Per 3.3 SDK doc
-    samsungPayClient.isReadyToPay(paymentMethods)
-      .then(function(response) {
-        logJSON('isReadyToPay() → response', response, 'ok');
-
-        if (response.result) {
-          log('Result: true → injecting official button via createButton().', 'ok');
-          setSdkStatus('Ready', 'ok');
-          $('alert-bar').className = '';
-          injectButton();
-        } else {
-          log('Result: false → Samsung Pay not available here. Showing fallback.', 'warn');
-          setSdkStatus('Not available in this browser', 'err');
-          setAlert('Samsung Pay not available in this browser. Fallback button shown.', 'warn');
-          showFallbackButton();
-        }
-      })
-      .catch(function(err) {
-        logJSON('isReadyToPay() error', err, 'err');
-        setSdkStatus('isReadyToPay() failed', 'err');
-        setAlert('isReadyToPay() error — see log. Fallback button shown.', 'error');
-        showFallbackButton();
-      });
+  // notify() Samsung of result
+  logSep('notify()');
+  const result = { status: 'CHARGED', provider: 'MPGS' };
+  logJSON('paymentResult', result, 'info');
+  try {
+    client.notify(result);
+    log('notify() called OK.', 'ok');
+  } catch(e) {
+    log('notify() threw: ' + e.message, 'warn');
   }
-
-  // ─── Button injection ─────────────────────────────────────────────────────
-  function injectButton() {
-    try {
-      // ✅ Per 3.3 SDK doc: createButton({onClick, buttonStyle, type})
-      const btn = samsungPayClient.createButton({
-        onClick:     onSamsungPayButtonClicked,
-        buttonStyle: 'black',
-        type:        'buy'
-      });
-      $('samsungpay-container').innerHTML = '';
-      $('samsungpay-container').appendChild(btn);
-      log('Official Samsung Pay button injected by SDK.', 'ok');
-    } catch(e) {
-      log('createButton() threw: ' + e.message, 'warn');
-      log('Falling back to manual button.', 'warn');
-      showFallbackButton();
-    }
-  }
-
-  function showFallbackButton() {
-    const btn = $('manual-spay-btn');
-    btn.style.display = 'flex';
-    btn.disabled = false;
-    btn.addEventListener('click', onSamsungPayButtonClicked);
-    log('Fallback button active.', 'warn');
-  }
-
-  // ─── Payment Sheet ────────────────────────────────────────────────────────
-  function onSamsungPayButtonClicked() {
-    const serviceId = $('cfg-service-id').value.trim();
-    if (!serviceId) {
-      setAlert('Service ID is required.', 'error');
-      return;
-    }
-
-    // ✅ TransactionDetail per 3.3 SDK doc
-    const transactionDetail = {
-      orderNumber: genOrderRef(),
-      merchant: {
-        name:        $('cfg-merchant-name').value.trim() || 'Noqodi',
-        url:         window.location.hostname,
-        id:          $('cfg-merchant-id').value.trim()   || 'noqodi_test',
-        countryCode: $('cfg-country').value
-      },
-      amount: {
-        option:   'FORMAT_TOTAL_ESTIMATED_AMOUNT',
-        currency: $('cfg-currency').value,
-        total:    parseFloat($('cfg-amount').value || '10.00')
-      }
-    };
-
-    const paymentMethods = buildPaymentMethods();
-
-    log('─── loadPaymentSheet() ───', 'section');
-    logJSON('paymentMethods',    paymentMethods,    'info');
-    logJSON('transactionDetail', transactionDetail, 'info');
-    setAlert('Opening Samsung Pay checkout…', 'info');
-
-    // ✅ Per 3.3 SDK doc: loadPaymentSheet(paymentMethods, transactionDetail) → Promise
-    samsungPayClient.loadPaymentSheet(paymentMethods, transactionDetail)
-      .then(function(paymentCredential) {
-        log('─── paymentCredential RECEIVED ───', 'section');
-        logJSON('paymentCredential', paymentCredential, 'ok');
-        handleCredential(paymentCredential);
-      })
-      .catch(function(error) {
-        log('─── loadPaymentSheet() ERROR ───', 'section');
-        logJSON('error', error, 'err');
-        setAlert('Error: ' + (error?.errorCode || error?.message || JSON.stringify(error)), 'error');
-      });
-  }
-
-  // ─── Credential Handler ───────────────────────────────────────────────────
-  function handleCredential(cred) {
-    setAlert('✓ Credential received — 3DS.data ready to send to MPGS', 'success');
-
-    const body = $('cred-body');
-    body.innerHTML = '';
-    $('cred-card').classList.add('show');
-
-    const rows = [
-      ['Method',        cred.method              || '—'],
-      ['Card Brand',    cred.card_brand           || '—'],
-      ['Last 4 Digits', cred.card_last4digits     || '—'],
-      ['3DS Type',      cred['3DS']?.type         || '—'],
-      ['3DS Version',   cred['3DS']?.version      || '—'],
-    ];
-
-    rows.forEach(([key, val]) => {
-      const d = document.createElement('div');
-      d.className = 'cred-row';
-      d.innerHTML = `<span class="cred-key">${esc(key)}</span><span class="cred-val">${esc(val)}</span>`;
-      body.appendChild(d);
-    });
-
-    if (cred['3DS']?.data) {
-      const d = document.createElement('div');
-      d.className = 'cred-row';
-      d.innerHTML = `
-        <span class="cred-key">3DS.data — JWE token (forward this to MPGS Authorize)</span>
-        <span class="cred-val highlight">${esc(cred['3DS'].data)}</span>`;
-      body.appendChild(d);
-    }
-
-    // ✅ Per 3.3 SDK doc: must call notify() after processing
-    const paymentResult = { status: 'CHARGED', provider: 'MPGS' };
-    log('Calling samsungPayClient.notify(paymentResult)…', 'info');
-    logJSON('paymentResult', paymentResult, 'info');
-
-    try {
-      samsungPayClient.notify(paymentResult);
-      log('notify() called OK.', 'ok');
-    } catch(e) {
-      log('notify() threw: ' + e.message, 'warn');
-    }
-  }
+}
 </script>
 </body>
 </html>
