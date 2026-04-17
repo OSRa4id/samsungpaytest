@@ -36,6 +36,8 @@
     #env-badge.without-apk::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--warn)}
     #env-badge.stage{background:var(--info-bg);border:1px solid var(--info-bd);color:var(--info-txt)}
     #env-badge.stage::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--info-txt)}
+    #env-badge.production{background:var(--err-bg);border:1px solid var(--err-bd);color:var(--err)}
+    #env-badge.production::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--err)}
 
     /* Card */
     .card{width:100%;max-width:620px;background:var(--surface);border:1px solid var(--border);
@@ -178,7 +180,7 @@
       <select id="env" onchange="onEnvChange()">
         <option value="STAGE_WITHOUT_APK" selected>STAGE_WITHOUT_APK — simulate without device</option>
         <option value="STAGE">STAGE — real Samsung Wallet test app on device</option>
-        <option value="PRODUCTION">PRODUCTION — live environment</option>
+        <option value="PRODUCTION">PRODUCTION — live environment ⚠ real charges</option>
       </select>
     </div>
 
@@ -425,14 +427,23 @@ function onEnvChange() {
   if (env === 'STAGE_WITHOUT_APK') {
     badge.className = 'without-apk';
     badge.textContent = 'STAGE_WITHOUT_APK';
-  } else {
+  } else if (env === 'STAGE') {
     badge.className = 'stage';
     badge.textContent = 'STAGE';
+  } else {
+    badge.className = 'production';
+    badge.textContent = 'PRODUCTION ⚠';
   }
   updatePreview();
   log(`Environment changed to: ${env}`, 'warn');
-  log('Click ↺ Re-init SDK to apply the new environment.', 'warn');
-  setAlert(`Environment changed to ${env}. Click ↺ Re-init SDK to apply.`, 'warn');
+  if (env === 'PRODUCTION') {
+    log('⚠ PRODUCTION selected — this will process REAL charges against REAL cards.', 'err');
+    log('Your service must be in Approved/Released state on the portal for PRODUCTION to work.', 'err');
+    setAlert(`⚠ PRODUCTION selected — real charges will be made. Service must be Approved on portal. Click ↺ Re-init SDK to apply.`, 'err');
+  } else {
+    log('Click ↺ Re-init SDK to apply the new environment.', 'warn');
+    setAlert(`Environment changed to ${env}. Click ↺ Re-init SDK to apply.`, 'warn');
+  }
 }
 
 // ─── SDK lifecycle ───────────────────────────────────────────────────────────
@@ -565,6 +576,9 @@ function onPay() {
 
   logSep('loadPaymentSheet()');
   log('Environment: ' + getEnv(), 'data');
+  if (getEnv() === 'PRODUCTION') {
+    log('⚠ PRODUCTION — this will attempt a REAL charge.', 'err');
+  }
   logJSON('paymentMethods → sending', pm, 'info');
   logJSON('transactionDetail → sending', td, 'info');
   log(`amount.total type: ${typeof td.amount.total} value: "${td.amount.total}" ✓ String`, 'data');
