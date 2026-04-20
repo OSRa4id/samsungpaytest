@@ -458,6 +458,8 @@ function reinit() {
   $('cred-card').classList.remove('show');
   $('notify-section').classList.remove('show');
   $('alert').className = 'alert';
+  $('notify-btn').disabled = false;
+  $('notify-btn').textContent = 'Send notify()';
   log('Re-initializing SDK…', 'warn');
   initSDK();
 }
@@ -557,7 +559,10 @@ function injectButton() {
 function showFallback() {
   const b = $('fallback-btn');
   b.style.display = 'flex'; b.disabled = false;
-  b.addEventListener('click', onPay);
+  // Replace the element clone to wipe any previously attached listeners
+  const fresh = b.cloneNode(true);
+  b.parentNode.replaceChild(fresh, b);
+  fresh.addEventListener('click', onPay);
   log('Fallback button active.', 'warn');
 }
 
@@ -689,7 +694,7 @@ const DIAG = {
       check:'Portal → Service Management → your service → check status + click "Generate New Date" if expired' },
     { icon:'💳', title:'PG or card brand mismatch',
       desc:'The allowedBrands you sent may not match what your PG supports, or MPGS is not properly selected as the PG.',
-      check:`Sent allowedBrands: [${Array.from($('brands').selectedOptions).map(o=>o.value).join(', ')}]` },
+      get check() { return `Sent allowedBrands: [${getBrands().join(', ')}] — verify these are configured in your MPGS service on the Samsung portal`; } },
     { icon:'👤', title:'Samsung account not on allowlist (STAGE mode only)',
       desc:'In STAGE mode, your Samsung account must be added to the test accounts allowlist on the portal.',
       check:'Portal → Service Management → your service → Add Samsung Account → add your test account email' }
